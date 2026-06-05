@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Task Management API
 
 Node.js + Express backend for the MERN Task Management application.
@@ -45,3 +46,6 @@ After deployment, open the backend URL. It should return:
 ```json
 { "message": "Task Management API is running" }
 ```
+=======
+# taskmanagment_backend
+>>>>>>> 9d8874fe3e8601d66b01aae074799307f2c7f523
