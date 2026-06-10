@@ -1,5 +1,6 @@
 const express = require('express');
 require('dotenv').config();
+
 const userrouter = require('./routes/userroute');
 const taskrouter = require('./routes/taskroute');
 const PORT = process.env.PORT || 3000;
@@ -8,22 +9,24 @@ const connectDB = require('./config/dbconnection');
 //application object alos instance of express that provide rotueing middware and sevrer method 
 const app = express();
 
-app.use(express.urlencoded({extended:true}))
 app.use(express.json());
 
-app.use("/uploads", express.static("uploads"));
-
-
 app.use((req, res, next) => {
+    const allowedOrigins = [
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+        'https://taskmanagment-frontend-chi.vercel.app',
+        ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',').map((origin) => origin.trim()) : [])
+    ];
+
     const requestOrigin = req.headers.origin;
 
-    // Always echo origin back if browser sends it.
-    // This ensures the CORS allow-origin header exists for both OPTIONS + normal requests.
-    if (requestOrigin) {
+    // Always set headers (especially OPTIONS preflight)
+    if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
         res.header('Access-Control-Allow-Origin', requestOrigin);
-        res.header('Vary', 'Origin');
     }
 
+    res.header('Vary', 'Origin');
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -32,10 +35,9 @@ app.use((req, res, next) => {
         return res.sendStatus(204);
     }
 
+
     next();
 });
-
-
 
 app.get('/', (req, res) => {
     res.status(200).json({ message: 'Task Management API is running' });

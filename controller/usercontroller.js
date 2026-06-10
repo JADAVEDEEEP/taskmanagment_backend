@@ -26,8 +26,10 @@ const getUserById = async (req, res) => {
         }      
          res.status(200).json(user);
     } catch (error) {
+        console.log('createUser error:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
+
 }
 
 const createUser = async (req, res) => {
@@ -43,28 +45,31 @@ const createUser = async (req, res) => {
         }
 
         // Check if the user already exists in the database by email
-        // const normalizedEmail = email.toLowerCase().trim();
+        const normalizedEmail = email.toLowerCase().trim();
+
         const existingUser = await userschema.findOne({ email: normalizedEmail });
         if (existingUser) {
             return res.status(400).json({ error: 'User already exists' });
         }
-      //hasing the password using bycyopt and conversting into 10 random numbers 
+
+        // hasing the password using bcrypt and converting into 10 random numbers
         const hashedPassword = await bcrypt.hash(password, 10);
 
-       
         const newUser = new userschema({
             name,
             email: normalizedEmail,
-            password: hashedPassword,
-            image: req.file ? req.file.path : ""
+            password: hashedPassword
         });
+
 
         await newUser.save();
         res.status(201).json({ message: 'User created successfully' });
     } catch (error) {
+        console.log('getUserById error:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+
 //this update user function will update the user data by id and send the json responce as updated data to the client
 const updateUser = async (req, res) => {
     try {
@@ -74,8 +79,10 @@ const updateUser = async (req, res) => {
     const update = await userschema.findByIdAndUpdate(userId, body, { new: true });
     res.status(200).json(update);
 }catch (error) {
+    console.log('updateUser error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
 }
+
 }
 //this delete user function will delete the user data by id and send the json responce as messge of scuess 
 const deleteUser = async (req, res) => {
@@ -89,9 +96,11 @@ const deleteUser = async (req, res) => {
         }
         res.status(200).json({ message: 'User deleted successfully' });
     } catch (error) {
+        console.log('deleteUser error:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }       
+
 
 
 const loginuser = async(req,res)=>{
@@ -120,8 +129,10 @@ const loginuser = async(req,res)=>{
             }
         })
     }catch(error){
+        console.log('loginuser error:', error);
         res.status(500).json({error:'Internal Server Error'})
 }
+
 }
 
 module.exports = {
