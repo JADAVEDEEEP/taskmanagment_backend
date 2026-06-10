@@ -87,40 +87,83 @@ const createtask = async (req, res) => {
     }
 };
 
+// const updatetask = async (req, res) => {
+// try {
+// //it will fetch the task by task id from the taskdb and check the task is exist or not if not exist it will send the json responce as task not found to the client
+//  const task = await taskdb.findOne({ _id: req.params.id, userId: req.userId });
+
+// if (!task) {
+//     return res.status(404).json({ message: "Task not found" });
+// }
+
+// const updateFields = {};
+
+// if (req.body.title !== undefined) {
+//     updateFields.title = req.body.title;
+// }
+
+// if (req.body.description !== undefined) {
+//     updateFields.description = req.body.description;
+// }
+
+// if (req.body.status !== undefined) {
+//     updateFields.status = req.body.status;
+// }
+
+// if (!Object.keys(updateFields).length) {
+//     return res.status(400).json({ success: false, message: "No task fields provided" });
+// }
+
+// //using find by id and update method it will update the task data by id from the taskdb and send the json responce as updated task data to the client
+// const updatedTask = await taskdb.findOneAndUpdate({ _id: req.params.id, userId: req.userId }, updateFields, { new: true, runValidators: true });
+// res.status(200).json({ success: true, task: updatedTask });
+// } catch (error) {
+//     res.status(500).json({ success: false, message: "Failed to update task" });
+// }
+// }
 const updatetask = async (req, res) => {
-try {
-//it will fetch the task by task id from the taskdb and check the task is exist or not if not exist it will send the json responce as task not found to the client
- const task = await taskdb.findOne({ _id: req.params.id, userId: req.userId });
+    try {
+    //using findbyid method it will find the task by id from the task db moel
+        const task = await taskdb.findById(req.params.id);
+//check if task found or not 
+        if (!task) {
+            return res.status(404).json({
+                success: false,
+                message: "Task not found"
+            });
+        }
+    //task user id or login usr match then autrized otherwise not 
+        if (task.userId.toString() !== req.userId) {
+            return res.status(403).json({
+                success: false,
+                message: "Not authorized"
+            });
+        }
+       //using findbyidand updte method it will updtate the task data by id into taskdb model 
+        const updatedTask = await taskdb.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new: true,
+                runValidators: true
+            }
+        );
 
-if (!task) {
-    return res.status(404).json({ message: "Task not found" });
-}
+        res.status(200).json({
+            success: true,
+            message: "Task updated successfully",
+            task: updatedTask
+        });
 
-const updateFields = {};
+    } catch (error) {
+        console.error(error);
 
-if (req.body.title !== undefined) {
-    updateFields.title = req.body.title;
-}
-
-if (req.body.description !== undefined) {
-    updateFields.description = req.body.description;
-}
-
-if (req.body.status !== undefined) {
-    updateFields.status = req.body.status;
-}
-
-if (!Object.keys(updateFields).length) {
-    return res.status(400).json({ success: false, message: "No task fields provided" });
-}
-
-//using find by id and update method it will update the task data by id from the taskdb and send the json responce as updated task data to the client
-const updatedTask = await taskdb.findOneAndUpdate({ _id: req.params.id, userId: req.userId }, updateFields, { new: true, runValidators: true });
-res.status(200).json({ success: true, task: updatedTask });
-} catch (error) {
-    res.status(500).json({ success: false, message: "Failed to update task" });
-}
-}
+        res.status(500).json({
+            success: false,
+            message: "Failed to update task"
+        });
+    }
+};
 
 const deletetask = async (req, res) => {
 try {

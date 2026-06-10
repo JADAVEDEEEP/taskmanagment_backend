@@ -3,6 +3,7 @@ const userschema = require('../model/userdb');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+
 //this get all user function will fetch all the user data from the userscehma model and send the json responce as user data to the client
 const getAllUsers = async (req, res) => {
     try {
@@ -42,7 +43,7 @@ const createUser = async (req, res) => {
         }
 
         // Check if the user already exists in the database by email
-        const normalizedEmail = email.toLowerCase().trim();
+        // const normalizedEmail = email.toLowerCase().trim();
         const existingUser = await userschema.findOne({ email: normalizedEmail });
         if (existingUser) {
             return res.status(400).json({ error: 'User already exists' });
@@ -54,7 +55,8 @@ const createUser = async (req, res) => {
         const newUser = new userschema({
             name,
             email: normalizedEmail,
-            password: hashedPassword
+            password: hashedPassword,
+            image: req.file ? req.file.path : ""
         });
 
         await newUser.save();
