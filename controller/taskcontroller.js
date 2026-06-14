@@ -123,31 +123,21 @@ const createtask = async (req, res) => {
 // }
 const updatetask = async (req, res) => {
     try {
-    //using findbyid method it will find the task by id from the task db moel
-        const task = await taskdb.findById(req.params.id);
-//check if task found or not 
-        if (!task) {
-            return res.status(404).json({
-                success: false,
-                message: "Task not found"
-            });
-        }
-    //task user id or login usr match then autrized otherwise not 
-        if (task.userId.toString() !== req.userId) {
-            return res.status(403).json({
-                success: false,
-                message: "Not authorized"
-            });
-        }
-       //using findbyidand updte method it will updtate the task data by id into taskdb model 
-        const updatedTask = await taskdb.findByIdAndUpdate(
-            req.params.id,
+        const updatedTask = await taskdb.findOneAndUpdate(
+            { _id: req.params.id, userId: req.userId },
             req.body,
             {
                 new: true,
                 runValidators: true
             }
         );
+
+        if (!updatedTask) {
+            return res.status(404).json({
+                success: false,
+                message: "Task not found"
+            });
+        }
 
         res.status(200).json({
             success: true,
@@ -175,7 +165,8 @@ if (!task) {
 }
 
 //using find by id and delete method it will delete the task data by id from the taskdb and send the json responce as task deleted successfully to the client
-await taskdb.findByIdAndDelete(req.params.id);
+await taskdb.findOneAndDelete({ _id: req.params.id, userId: req.userId });
+
 
 res.status(200).json({
     success: true,
